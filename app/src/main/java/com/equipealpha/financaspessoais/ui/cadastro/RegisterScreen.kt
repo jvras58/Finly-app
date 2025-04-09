@@ -11,7 +11,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.equipealpha.financaspessoais.navigation.Routes
 
 @Composable
 fun RegisterScreen(navController: NavController) {

@@ -13,7 +13,6 @@ import androidx.navigation.NavController
 import androidx.navigation.NavBackStackEntry
 import com.equipealpha.financaspessoais.data.entities.Transaction
 import com.equipealpha.financaspessoais.viewmodel.TransactionViewModel
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -36,7 +35,7 @@ fun EditTransactionScreen(
     var dataSelecionada by remember { mutableStateOf(Calendar.getInstance()) }
 
     LaunchedEffect(id) {
-        id?.let {
+        id?.let { it ->
             transaction = vm.buscarPorId(it)
             transaction?.let {
                 valor = it.amount.toString()

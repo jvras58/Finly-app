@@ -1,7 +1,6 @@
 package com.equipealpha.financaspessoais.viewmodel
 
 import android.app.Application
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.equipealpha.financaspessoais.data.entities.Transaction
