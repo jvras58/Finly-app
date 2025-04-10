@@ -3,17 +3,25 @@ package com.equipealpha.financaspessoais
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.rememberNavController
 import com.equipealpha.financaspessoais.data.repository.AuthRepository
-import com.equipealpha.financaspessoais.navigation.AppNavigation
-import com.equipealpha.financaspessoais.navigation.Routes
+import com.equipealpha.financaspessoais.ui.root.HomeRootScreen
 import com.equipealpha.financaspessoais.ui.theme.FinancasPessoaisTheme
 import com.equipealpha.financaspessoais.viewmodel.AuthViewModel
-import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
-import com.equipealpha.financaspessoais.ui.LocalActivity
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.compose.runtime.staticCompositionLocalOf
 
+// Crie um CompositionLocal para a Activity, caso precise utilizar em outras telas
+val LocalActivity = staticCompositionLocalOf<ComponentActivity> {
+    error("Nenhuma Activity foi fornecida")
+}
 
 class MainActivity : ComponentActivity() {
     private lateinit var authViewModel: AuthViewModel
@@ -30,20 +38,16 @@ class MainActivity : ComponentActivity() {
         ).get(AuthViewModel::class.java)
 
         setContent {
-            // Obtenha o estado atual do usuário.
-            val user by authViewModel.userState.collectAsState()
-            // Define a rota inicial baseada no usuário autenticado.
-            val startDestination = if (user != null) Routes.MAIN_APP else Routes.LOGIN
-
-            // Fornece a Activity atual aos composables via CompositionLocal
-            CompositionLocalProvider(LocalActivity provides this) {
+            // Aqui, além de fornecer o LocalActivity, vamos fornecer explicitamente o LocalViewModelStoreOwner.
+            CompositionLocalProvider(
+                LocalActivity provides this,
+                androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner provides this as ViewModelStoreOwner
+            ) {
                 var isDarkTheme by rememberSaveable { mutableStateOf(false) }
                 FinancasPessoaisTheme(darkTheme = isDarkTheme) {
                     val navController = rememberNavController()
-                    AppNavigation(
+                    HomeRootScreen(
                         navController = navController,
-                        authViewModel = authViewModel,
-                        startDestination = startDestination,  // Rota condicional
                         onToggleTheme = { isDarkTheme = !isDarkTheme }
                     )
                 }
