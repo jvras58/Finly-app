@@ -32,10 +32,9 @@ class AuthViewModel(private val authRepo: AuthRepository) : ViewModel() {
     fun signInWithGoogle(activity: ComponentActivity) {
         viewModelScope.launch {
             try {
-                // Configura as opções de login com base no cliente Web definido no strings.xml
                 val googleIdOption = GetGoogleIdOption.Builder()
                     .setServerClientId(activity.getString(com.equipealpha.financaspessoais.R.string.default_web_client_id))
-                    .setFilterByAuthorizedAccounts(false)
+                    .setFilterByAuthorizedAccounts(false) // Ou remova o filtro
                     .build()
                 val request = GetCredentialRequest.Builder()
                     .addCredentialOption(googleIdOption)
@@ -44,18 +43,22 @@ class AuthViewModel(private val authRepo: AuthRepository) : ViewModel() {
                 val result = credentialManager.getCredential(activity, request)
                 val credential = result.credential
                 if (credential is CustomCredential &&
-                    credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                    credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+                ) {
                     val googleCredential = GoogleIdTokenCredential.createFrom(credential.data)
                     val idToken = googleCredential.idToken
                     authRepo.signInWithGoogleIdToken(idToken)
                 } else {
                     Log.w("AuthViewModel", "Credencial não é do tipo Google ID.")
+                    // Aqui você pode informar ao usuário que o login não foi realizado
                 }
             } catch (e: Exception) {
                 Log.e("AuthViewModel", "Falha no login com Google: ${e.localizedMessage}")
+                // Exiba uma mensagem para o usuário solicitando que verifique as contas Google ou adicione uma conta
             }
         }
     }
+
 
     // Efetua o logout.
     fun signOut() {
