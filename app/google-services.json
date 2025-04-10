@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "11739326308",
+    "project_id": "finly-app-bfe98",
+    "storage_bucket": "finly-app-bfe98.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:11739326308:android:9309fa3f2f05e3346afc71",
+        "android_client_info": {
+          "package_name": "com.equipealpha.financaspessoais"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "11739326308-ae6ijgc70c1fpdpcvt9k1plkdra7dvco.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.equipealpha.financaspessoais",
+            "certificate_hash": "571a9d05374b07eead17f3422368ef7f2f25761d"
+          }
+        },
+        {
+          "client_id": "11739326308-csi5oo87nci6r0iojgi8u95kbrna53fs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJIi4Bx6SVXieGmfTW0M8J9W3MitLeVHY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "11739326308-csi5oo87nci6r0iojgi8u95kbrna53fs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

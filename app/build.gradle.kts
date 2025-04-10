@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -72,5 +73,21 @@ dependencies {
 
     // Coroutines
     implementation(libs.kotlinx.coroutines.android)
+
+    // Firebase Authentication usando BoM:
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.auth.ktx)
+
+    // Credential Manager (autenticação unificada - Jetpack Credentials API)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
+
+    // KTX para Tasks (para usar .await() em chamadas Firebase)
+    implementation(libs.kotlinx.coroutines.play.services)
+
+    // Google Sign-In:
+    implementation(libs.play.services.auth)
 
 }
