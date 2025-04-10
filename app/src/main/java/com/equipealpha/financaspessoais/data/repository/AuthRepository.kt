@@ -15,40 +15,33 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
 class AuthRepository(private val context: Context) {
-    // Instância do FirebaseAuth (inicializada no companion object para garantir uma única instância)
+    // Instância singleton do FirebaseAuth.
     private val auth: FirebaseAuth = Firebase.auth
 
-    // Flow que emite o usuário Firebase atual (null se deslogado)
-    //  - Emite o FirebaseAuth e não o FirebaseUser para ter acesso à instância do FirebaseAuth no Flow, se necessário.
+    // Flow para emitir atualizações de usuário autenticado.
     val currentUserFlow = callbackFlow<FirebaseUser?> {
-        // Listener para mudanças de estado de login no Firebase
         val listener = FirebaseAuth.AuthStateListener { firebaseAuth ->
-            // Emite o usuário atual (pode ser null)
             trySend(firebaseAuth.currentUser)
         }
         auth.addAuthStateListener(listener)
-
-        // Encerrar o Flow e remover listener quando não for mais necessário
         awaitClose { auth.removeAuthStateListener(listener) }
     }
 
+    // Função para fazer o login com o token de autenticação do Google.
     suspend fun signInWithGoogleIdToken(idToken: String): FirebaseUser? {
-        // Cria credencial Firebase a partir do ID Token do Google
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         return try {
-            // Faz login no Firebase de forma assíncrona (usando await() da KTX)
             val result = auth.signInWithCredential(credential).await()
-            result.user  // FirebaseUser logado (ou null se falhou)
+            result.user  // Retorna o usuário autenticado.
         } catch (e: Exception) {
-            Log.e("AuthRepository", "Erro ao fazer login com Google: ${e.localizedMessage}")
-            null // Retorna null em caso de erro
+            Log.e("AuthRepository", "Erro ao autenticar com Google: ${e.localizedMessage}")
+            null
         }
     }
 
+    // Função para deslogar e limpar o estado do Credential Manager.
     suspend fun signOut() {
-        // Faz logout no Firebase
         auth.signOut()
-        // Limpa o estado de credenciais Google armazenadas (Credential Manager)
         val credentialManager = CredentialManager.create(context)
         try {
             val clearRequest = ClearCredentialStateRequest()

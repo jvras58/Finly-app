@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.equipealpha.financaspessoais" />
+                  <option name="mobileSdkAppId" value="1:11739326308:android:9309fa3f2f05e3346afc71" />
+                  <option name="projectId" value="finly-app-bfe98" />
+                  <option name="projectNumber" value="11739326308" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
