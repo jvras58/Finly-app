@@ -13,7 +13,6 @@ import androidx.navigation.compose.composable
 import com.equipealpha.financaspessoais.navigation.Routes
 import com.equipealpha.financaspessoais.ui.dashboard.HomeScreen
 import com.equipealpha.financaspessoais.ui.navigation.BottomNavigationBar
-import com.equipealpha.financaspessoais.ui.profile.EditProfileScreen
 import com.equipealpha.financaspessoais.ui.settings.SettingsScreen
 import com.equipealpha.financaspessoais.ui.transacao.AddMoneyScreen
 import com.equipealpha.financaspessoais.ui.transacao.EditTransactionScreen
@@ -40,7 +39,6 @@ fun HomeRootScreen(
         }
     ) { padding ->
 
-        // Navegação interna do app (rotas privadas)
         NavHost(
             navController = navController,
             startDestination = Routes.HOME,
@@ -64,7 +62,7 @@ fun HomeRootScreen(
                     onToggleTheme = onToggleTheme,
                     onLogout = {
                         navController.navigate(Routes.LOGIN) {
-                            popUpTo(0) { inclusive = true } // limpa toda a pilha
+                            popUpTo(0) { inclusive = true }
                         }
                     }
                 )
@@ -75,11 +73,6 @@ fun HomeRootScreen(
             composable("${Routes.EDIT_TRANSACTION}/{id}") { backStackEntry ->
                 EditTransactionScreen(navController, backStackEntry)
             }
-
-            composable(Routes.EDIT_PROFILE) {
-                EditProfileScreen(navController = navController)
-            }
-
 
         }
     }

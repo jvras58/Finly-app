@@ -15,7 +15,6 @@ import kotlinx.coroutines.launch
 class TransactionViewModel(application: Application) : AndroidViewModel(application) {
     private val dao = AppDatabase.getDatabase(application).transactionDao()
 
-    // StateFlows observáveis pela UI
     private val _totalEntradas = MutableStateFlow(0.0)
     val totalEntradas: StateFlow<Double> = _totalEntradas
 

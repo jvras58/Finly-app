@@ -5,7 +5,6 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.equipealpha.financaspessoais.ui.cadastro.RegisterScreen
 import com.equipealpha.financaspessoais.ui.login.LoginScreen
 import com.equipealpha.financaspessoais.ui.root.HomeRootScreen
 import com.equipealpha.financaspessoais.viewmodel.AuthViewModel
@@ -26,14 +25,13 @@ object Routes {
     const val WITHDRAW_MONEY = "withdraw_money"
     const val SETTINGS = "settings"
     const val TRANSACTIONS = "transactions"
-    const val EDIT_PROFILE = "edit_profile"
 }
 
 @Composable
 fun AppNavigation(
     navController: NavHostController,
     authViewModel: AuthViewModel,
-    startDestination: String, // Novo parâmetro para definir a rota inicial
+    startDestination: String,
     modifier: Modifier = Modifier,
     onToggleTheme: () -> Unit
 ) {
@@ -44,9 +42,6 @@ fun AppNavigation(
     ) {
         composable(Routes.LOGIN) {
             LoginScreen(navController = navController, authViewModel = authViewModel)
-        }
-        composable(Routes.REGISTER) {
-            RegisterScreen(navController)
         }
         composable(Routes.MAIN_APP) {
             HomeRootScreen(
