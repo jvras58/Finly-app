@@ -1,6 +1,6 @@
 package com.equipealpha.financaspessoais.ui.login
 
-import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -14,10 +14,10 @@ import com.equipealpha.financaspessoais.viewmodel.AuthViewModel
 @Composable
 fun LoginScreen(
     navController: NavController,
-    authViewModel: AuthViewModel // Recebe o ViewModel como parâmetro
+    authViewModel: AuthViewModel
 ) {
     val context = LocalContext.current
-    val activity = LocalContext.current as ComponentActivity
+    val activity = LocalActivity.current
 
     Column(
         modifier = Modifier
@@ -39,7 +39,6 @@ fun LoginScreen(
         }
     }
 
-    // Observa o estado do usuário e navega para a tela principal se autenticado.
     val user by authViewModel.userState.collectAsState()
     LaunchedEffect(user) {
         if (user != null) {
