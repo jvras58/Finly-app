@@ -1,7 +1,7 @@
 package com.equipealpha.financaspessoais.viewmodel
 
+import android.app.Activity
 import android.util.Log
-import androidx.activity.ComponentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -29,32 +29,43 @@ class AuthViewModel(private val authRepo: AuthRepository) : ViewModel() {
     }
 
     // Inicia o fluxo de login com Google.
-    fun signInWithGoogle(activity: ComponentActivity) {
+    fun signInWithGoogle(activity: Activity?) {
         viewModelScope.launch {
             try {
-                val googleIdOption = GetGoogleIdOption.Builder()
-                    .setServerClientId(activity.getString(com.equipealpha.financaspessoais.R.string.default_web_client_id))
-                    .setFilterByAuthorizedAccounts(false) // Ou remova o filtro
-                    .build()
-                val request = GetCredentialRequest.Builder()
-                    .addCredentialOption(googleIdOption)
-                    .build()
-                val credentialManager = CredentialManager.create(activity)
-                val result = credentialManager.getCredential(activity, request)
-                val credential = result.credential
+                val googleIdOption = activity?.let {
+                    GetGoogleIdOption.Builder()
+                        .setServerClientId(it.getString(com.equipealpha.financaspessoais.R.string.default_web_client_id))
+                        .setFilterByAuthorizedAccounts(false)
+                        .build()
+                }
+
+                val request = googleIdOption?.let {
+                    GetCredentialRequest.Builder()
+                        .addCredentialOption(it)
+                        .build()
+                }
+
+                val credentialResponse = activity?.let {
+                    if (request != null) {
+                        CredentialManager.create(it).getCredential(it, request)
+                    } else null
+                }
+
+                val credential = credentialResponse?.credential
+
                 if (credential is CustomCredential &&
                     credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
                 ) {
                     val googleCredential = GoogleIdTokenCredential.createFrom(credential.data)
                     val idToken = googleCredential.idToken
+
                     authRepo.signInWithGoogleIdToken(idToken)
                 } else {
                     Log.w("AuthViewModel", "Credencial não é do tipo Google ID.")
-                    // Aqui você pode informar ao usuário que o login não foi realizado
                 }
+
             } catch (e: Exception) {
                 Log.e("AuthViewModel", "Falha no login com Google: ${e.localizedMessage}")
-                // Exiba uma mensagem para o usuário solicitando que verifique as contas Google ou adicione uma conta
             }
         }
     }

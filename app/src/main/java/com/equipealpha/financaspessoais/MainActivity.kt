@@ -20,11 +20,8 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import com.equipealpha.financaspessoais.navigation.AppNavigation
 import com.equipealpha.financaspessoais.navigation.Routes
 import androidx.lifecycle.compose.collectAsStateWithLifecycle // Add this import
+import com.equipealpha.financaspessoais.ui.LocalActivity
 
-// Crie um CompositionLocal para a Activity, caso precise utilizar em outras telas
-val LocalActivity = staticCompositionLocalOf<ComponentActivity> {
-    error("Nenhuma Activity foi fornecida")
-}
 
 class MainActivity : ComponentActivity() {
     private lateinit var authViewModel: AuthViewModel
@@ -35,7 +32,7 @@ class MainActivity : ComponentActivity() {
         authViewModel = ViewModelProvider(
             this,
             AuthViewModel.provideFactory(authRepository)
-        ).get(AuthViewModel::class.java)
+        )[AuthViewModel::class.java]
 
         setContent {
             CompositionLocalProvider(
