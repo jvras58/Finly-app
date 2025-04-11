@@ -29,11 +29,6 @@ fun HomeScreen(navController: NavController, vm: TransactionViewModel = viewMode
         topBar = {
             TopAppBar(
                 title = { Text("Resumo Financeiro") },
-                actions = {
-                    IconButton(onClick = { navController.navigate(Routes.SETTINGS) }) {
-                        Icon(Icons.Default.Settings, contentDescription = "Configurações")
-                    }
-                }
             )
         },
     ) { padding ->

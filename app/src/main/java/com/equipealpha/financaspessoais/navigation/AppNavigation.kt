@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import com.equipealpha.financaspessoais.ui.cadastro.RegisterScreen
 import com.equipealpha.financaspessoais.ui.login.LoginScreen
 import com.equipealpha.financaspessoais.ui.root.HomeRootScreen
+import com.equipealpha.financaspessoais.viewmodel.AuthViewModel
 
 object Routes {
     const val EDIT_TRANSACTION = "edit_transaction"
@@ -26,32 +27,27 @@ object Routes {
     const val SETTINGS = "settings"
     const val TRANSACTIONS = "transactions"
     const val EDIT_PROFILE = "edit_profile"
-
-
-
 }
 
 @Composable
 fun AppNavigation(
     navController: NavHostController,
+    authViewModel: AuthViewModel,
+    startDestination: String, // Novo parâmetro para definir a rota inicial
     modifier: Modifier = Modifier,
     onToggleTheme: () -> Unit
 ) {
     NavHost(
         navController = navController,
-        startDestination = Routes.LOGIN,
+        startDestination = startDestination,
         modifier = modifier
     ) {
-        // Login e cadastro
         composable(Routes.LOGIN) {
-            LoginScreen(navController)
+            LoginScreen(navController = navController, authViewModel = authViewModel)
         }
-
         composable(Routes.REGISTER) {
             RegisterScreen(navController)
         }
-
-        // Rota com scaffold, FAB, BottomNav e navegação interna
         composable(Routes.MAIN_APP) {
             HomeRootScreen(
                 navController = navController,

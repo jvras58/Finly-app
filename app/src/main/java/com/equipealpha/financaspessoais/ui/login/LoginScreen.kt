@@ -1,23 +1,23 @@
 package com.equipealpha.financaspessoais.ui.login
 
-import android.widget.Toast
-import androidx.compose.foundation.clickable
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.equipealpha.financaspessoais.navigation.Routes
+import com.equipealpha.financaspessoais.viewmodel.AuthViewModel
 
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(
+    navController: NavController,
+    authViewModel: AuthViewModel // Recebe o ViewModel como parâmetro
+) {
     val context = LocalContext.current
-    var email by remember { mutableStateOf("") }
-    var senha by remember { mutableStateOf("") }
+    val activity = LocalContext.current as ComponentActivity
 
     Column(
         modifier = Modifier
@@ -27,52 +27,25 @@ fun LoginScreen(navController: NavController) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(text = "Login", style = MaterialTheme.typography.headlineMedium)
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("E-mail") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = senha,
-            onValueChange = { senha = it },
-            label = { Text("Senha") },
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
-        )
-
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
             onClick = {
-                if (email.isNotBlank() && senha.isNotBlank()) {
-                    navController.navigate(Routes.MAIN_APP) {
-                        popUpTo(Routes.LOGIN) { inclusive = true }
-                    }
-                } else {
-                    Toast.makeText(context, "Preencha todos os campos", Toast.LENGTH_SHORT).show()
-                }
+                authViewModel.signInWithGoogle(activity)
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Entrar")
+            Text("Login com Google")
         }
+    }
 
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "Não tem uma conta? Cadastre-se",
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.clickable {
-                navController.navigate(Routes.REGISTER)
+    // Observa o estado do usuário e navega para a tela principal se autenticado.
+    val user by authViewModel.userState.collectAsState()
+    LaunchedEffect(user) {
+        if (user != null) {
+            navController.navigate("main_app") {
+                popUpTo("login") { inclusive = true }
             }
-        )
+        }
     }
 }

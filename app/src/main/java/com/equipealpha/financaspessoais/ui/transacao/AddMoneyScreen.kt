@@ -52,10 +52,9 @@ fun AddMoneyScreen(navController: NavController, vm: TransactionViewModel = view
         ) {
             OutlinedTextField(
                 value = categoria,
-                onValueChange = {},
-                readOnly = true,
+                onValueChange = { categoria = it },
                 label = { Text("Categoria") },
-                modifier = Modifier.menuAnchor().fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             )
         }
 
