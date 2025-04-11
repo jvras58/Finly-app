@@ -36,8 +36,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             CompositionLocalProvider(
-                LocalActivity provides this,
-                androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner provides this as ViewModelStoreOwner
+                LocalActivity provides this
             ) {
                 var isDarkTheme by rememberSaveable { mutableStateOf(false) }
                 FinancasPessoaisTheme(darkTheme = isDarkTheme) {
@@ -47,12 +46,11 @@ class MainActivity : ComponentActivity() {
                     AppNavigation(
                         navController = navController,
                         authViewModel = authViewModel,
-                        startDestination = if (userState == null) Routes.LOGIN else Routes.MAIN_APP, // Use the collected state
+                        startDestination = if (userState == null) Routes.LOGIN else Routes.MAIN_APP,
                         onToggleTheme = { isDarkTheme = !isDarkTheme }
                     )
                 }
             }
         }
-
     }
 }
