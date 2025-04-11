@@ -26,7 +26,6 @@ object Routes {
     const val WITHDRAW_MONEY = "withdraw_money"
     const val SETTINGS = "settings"
     const val TRANSACTIONS = "transactions"
-    const val EDIT_PROFILE = "edit_profile"
 }
 
 @Composable
