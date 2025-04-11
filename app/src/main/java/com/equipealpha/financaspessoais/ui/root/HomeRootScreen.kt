@@ -13,7 +13,6 @@ import androidx.navigation.compose.composable
 import com.equipealpha.financaspessoais.navigation.Routes
 import com.equipealpha.financaspessoais.ui.dashboard.HomeScreen
 import com.equipealpha.financaspessoais.ui.navigation.BottomNavigationBar
-import com.equipealpha.financaspessoais.ui.profile.EditProfileScreen
 import com.equipealpha.financaspessoais.ui.settings.SettingsScreen
 import com.equipealpha.financaspessoais.ui.transacao.AddMoneyScreen
 import com.equipealpha.financaspessoais.ui.transacao.EditTransactionScreen
@@ -73,10 +72,6 @@ fun HomeRootScreen(
 
             composable("${Routes.EDIT_TRANSACTION}/{id}") { backStackEntry ->
                 EditTransactionScreen(navController, backStackEntry)
-            }
-
-            composable(Routes.EDIT_PROFILE) {
-                EditProfileScreen(navController = navController)
             }
 
 
