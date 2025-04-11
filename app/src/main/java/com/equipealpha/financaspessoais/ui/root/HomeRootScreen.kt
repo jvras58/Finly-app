@@ -40,7 +40,6 @@ fun HomeRootScreen(
         }
     ) { padding ->
 
-        // Navegação interna do app (rotas privadas)
         NavHost(
             navController = navController,
             startDestination = Routes.HOME,
@@ -64,7 +63,7 @@ fun HomeRootScreen(
                     onToggleTheme = onToggleTheme,
                     onLogout = {
                         navController.navigate(Routes.LOGIN) {
-                            popUpTo(0) { inclusive = true } // limpa toda a pilha
+                            popUpTo(0) { inclusive = true }
                         }
                     }
                 )

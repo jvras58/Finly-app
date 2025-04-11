@@ -17,6 +17,9 @@ import com.equipealpha.financaspessoais.ui.theme.FinancasPessoaisTheme
 import com.equipealpha.financaspessoais.viewmodel.AuthViewModel
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.compose.runtime.staticCompositionLocalOf
+import com.equipealpha.financaspessoais.navigation.AppNavigation
+import com.equipealpha.financaspessoais.navigation.Routes
+import androidx.lifecycle.compose.collectAsStateWithLifecycle // Add this import
 
 // Crie um CompositionLocal para a Activity, caso precise utilizar em outras telas
 val LocalActivity = staticCompositionLocalOf<ComponentActivity> {
@@ -28,17 +31,13 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Crie a instância do AuthRepository usando o contexto da aplicação.
         val authRepository = AuthRepository(applicationContext)
-        // Instancie o AuthViewModel utilizando o ViewModelProvider e a factory.
         authViewModel = ViewModelProvider(
             this,
             AuthViewModel.provideFactory(authRepository)
         ).get(AuthViewModel::class.java)
 
         setContent {
-            // Aqui, além de fornecer o LocalActivity, vamos fornecer explicitamente o LocalViewModelStoreOwner.
             CompositionLocalProvider(
                 LocalActivity provides this,
                 androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner provides this as ViewModelStoreOwner
@@ -46,12 +45,17 @@ class MainActivity : ComponentActivity() {
                 var isDarkTheme by rememberSaveable { mutableStateOf(false) }
                 FinancasPessoaisTheme(darkTheme = isDarkTheme) {
                     val navController = rememberNavController()
-                    HomeRootScreen(
+                    val userState by authViewModel.userState.collectAsStateWithLifecycle()
+
+                    AppNavigation(
                         navController = navController,
+                        authViewModel = authViewModel,
+                        startDestination = if (userState == null) Routes.LOGIN else Routes.MAIN_APP, // Use the collected state
                         onToggleTheme = { isDarkTheme = !isDarkTheme }
                     )
                 }
             }
         }
+
     }
 }
