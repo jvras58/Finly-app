@@ -24,12 +24,6 @@ fun SettingsScreen(
     ) {
         Text("Configurações", style = MaterialTheme.typography.headlineMedium)
 
-        Button(onClick = {
-            navController.navigate(Routes.EDIT_PROFILE)
-        }) {
-            Text("Editar Perfil")
-        }
-
 
         Button(onClick = {
             onToggleTheme()
