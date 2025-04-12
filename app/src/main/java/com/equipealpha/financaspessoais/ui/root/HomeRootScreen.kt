@@ -18,11 +18,13 @@ import com.equipealpha.financaspessoais.ui.transacao.AddMoneyScreen
 import com.equipealpha.financaspessoais.ui.transacao.EditTransactionScreen
 import com.equipealpha.financaspessoais.ui.transacao.TransactionListScreen
 import com.equipealpha.financaspessoais.ui.transacao.WithdrawMoneyScreen
+import com.equipealpha.financaspessoais.viewmodel.AuthViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeRootScreen(
     navController: NavHostController,
+    authViewModel: AuthViewModel, // Adicionamos o authViewModel como parâmetro
     onToggleTheme: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -59,21 +61,18 @@ fun HomeRootScreen(
             composable(Routes.SETTINGS) {
                 SettingsScreen(
                     navController = navController,
-                    onToggleTheme = onToggleTheme,
-                    onLogout = {
-                        navController.navigate(Routes.LOGIN) {
-                            popUpTo(0) { inclusive = true }
-                        }
-                    }
+                    authViewModel = authViewModel, // Passamos o authViewModel
+                    onToggleTheme = onToggleTheme
                 )
             }
 
-            composable(Routes.TRANSACTIONS) { TransactionListScreen(navController) }
+            composable(Routes.TRANSACTIONS) {
+                TransactionListScreen(navController)
+            }
 
             composable("${Routes.EDIT_TRANSACTION}/{id}") { backStackEntry ->
                 EditTransactionScreen(navController, backStackEntry)
             }
-
         }
     }
 

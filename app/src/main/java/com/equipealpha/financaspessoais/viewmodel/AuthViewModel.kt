@@ -1,73 +1,107 @@
 package com.equipealpha.financaspessoais.viewmodel
 
+import android.app.Activity
 import android.util.Log
-import androidx.activity.ComponentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FirebaseUser
+import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialException
+import com.equipealpha.financaspessoais.R
 import com.equipealpha.financaspessoais.data.repository.AuthRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
-import androidx.credentials.*
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.firebase.auth.FirebaseUser
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class AuthViewModel(private val authRepo: AuthRepository) : ViewModel() {
 
-    // StateFlow que guarda o usuário autenticado (null se não estiver logado)
     private val _userState = MutableStateFlow<FirebaseUser?>(null)
-    val userState: StateFlow<FirebaseUser?> = _userState
+    val userState: StateFlow<FirebaseUser?> = _userState.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
     init {
         viewModelScope.launch {
-            authRepo.currentUserFlow.collect { user ->
+            authRepo.currentUser.collect { user ->
                 _userState.value = user
             }
         }
     }
 
-    // Inicia o fluxo de login com Google.
-    fun signInWithGoogle(activity: ComponentActivity) {
+    fun signInWithGoogle(activity: Activity) {
         viewModelScope.launch {
+            _isLoading.value = true
+            _errorMessage.value = null
+
             try {
+                val credentialManager = CredentialManager.create(activity)
                 val googleIdOption = GetGoogleIdOption.Builder()
-                    .setServerClientId(activity.getString(com.equipealpha.financaspessoais.R.string.default_web_client_id))
-                    .setFilterByAuthorizedAccounts(false) // Ou remova o filtro
+                    .setServerClientId(activity.getString(R.string.default_web_client_id))
+                    .setFilterByAuthorizedAccounts(false)
+                    .setAutoSelectEnabled(true)
                     .build()
+
                 val request = GetCredentialRequest.Builder()
                     .addCredentialOption(googleIdOption)
                     .build()
-                val credentialManager = CredentialManager.create(activity)
+
+                Log.d("AuthViewModel", "Iniciando getCredential")
                 val result = credentialManager.getCredential(activity, request)
                 val credential = result.credential
-                if (credential is CustomCredential &&
-                    credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
-                ) {
+
+                Log.d("AuthViewModel", "Credencial recebida: type=${credential.type}, data=${credential.data}")
+
+                // Verificar o tipo explicitamente
+                if (credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
                     val googleCredential = GoogleIdTokenCredential.createFrom(credential.data)
                     val idToken = googleCredential.idToken
-                    authRepo.signInWithGoogleIdToken(idToken)
+                    Log.d("AuthViewModel", "ID Token obtido: $idToken")
+                    val authResult = authRepo.signInWithGoogleIdToken(idToken)
+                    if (authResult.isSuccess) {
+                        _userState.value = authResult.getOrNull()
+                        Log.d("AuthViewModel", "Login bem-sucedido: ${_userState.value?.email}")
+                    } else {
+                        _errorMessage.value = "Falha na autenticação: ${authResult.exceptionOrNull()?.message}"
+                        Log.e("AuthViewModel", "Falha na autenticação: ${authResult.exceptionOrNull()?.message}")
+                    }
                 } else {
-                    Log.w("AuthViewModel", "Credencial não é do tipo Google ID.")
-                    // Aqui você pode informar ao usuário que o login não foi realizado
+                    _errorMessage.value = "Credencial inválida: tipo recebido=${credential.type}, esperado=${GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL}"
+                    Log.e("AuthViewModel", "Credencial inválida: tipo recebido=${credential.type}, esperado=${GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL}")
                 }
+            } catch (e: GetCredentialException) {
+                _errorMessage.value = "Erro ao obter credencial: ${e.message}"
+                Log.e("AuthViewModel", "Erro ao obter credencial: ${e.message}", e)
             } catch (e: Exception) {
-                Log.e("AuthViewModel", "Falha no login com Google: ${e.localizedMessage}")
-                // Exiba uma mensagem para o usuário solicitando que verifique as contas Google ou adicione uma conta
+                _errorMessage.value = "Erro inesperado: ${e.message}"
+                Log.e("AuthViewModel", "Erro inesperado: ${e.message}", e)
+            } finally {
+                _isLoading.value = false
             }
         }
     }
 
-
-    // Efetua o logout.
     fun signOut() {
         viewModelScope.launch {
-            authRepo.signOut()
+            val result = authRepo.signOut()
+            if (result.isFailure) {
+                _errorMessage.value = "Erro ao sair: ${result.exceptionOrNull()?.message}"
+            }
         }
     }
 
-    // Factory para instanciar o ViewModel via ViewModelProvider.
+    fun clearError() {
+        _errorMessage.value = null
+    }
+
     companion object {
         fun provideFactory(authRepo: AuthRepository): ViewModelProvider.Factory =
             object : ViewModelProvider.Factory {
@@ -76,7 +110,7 @@ class AuthViewModel(private val authRepo: AuthRepository) : ViewModel() {
                     if (modelClass.isAssignableFrom(AuthViewModel::class.java)) {
                         return AuthViewModel(authRepo) as T
                     }
-                    throw IllegalArgumentException("ViewModel desconhecido")
+                    throw IllegalArgumentException("Unknown ViewModel class")
                 }
             }
     }

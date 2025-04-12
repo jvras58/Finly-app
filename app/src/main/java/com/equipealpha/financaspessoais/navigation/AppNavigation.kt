@@ -11,15 +11,9 @@ import com.equipealpha.financaspessoais.viewmodel.AuthViewModel
 
 object Routes {
     const val EDIT_TRANSACTION = "edit_transaction"
-
-    // Rotas públicas
     const val LOGIN = "login"
     const val REGISTER = "register"
-
-    // Rota que carrega o app com scaffold completo
     const val MAIN_APP = "main_app"
-
-    // Rotas privadas (usadas dentro do HomeRootScreen)
     const val HOME = "home"
     const val ADD_MONEY = "add_money"
     const val WITHDRAW_MONEY = "withdraw_money"
@@ -46,6 +40,7 @@ fun AppNavigation(
         composable(Routes.MAIN_APP) {
             HomeRootScreen(
                 navController = navController,
+                authViewModel = authViewModel, // Passamos o authViewModel
                 onToggleTheme = onToggleTheme
             )
         }

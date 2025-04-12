@@ -8,46 +8,41 @@ import androidx.credentials.exceptions.ClearCredentialException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.tasks.await
 
 class AuthRepository(private val context: Context) {
-    // Instância singleton do FirebaseAuth.
-    private val auth: FirebaseAuth = Firebase.auth
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val _currentUser = MutableStateFlow(auth.currentUser)
+    val currentUser: Flow<FirebaseUser?> = _currentUser
 
-    // Flow para emitir atualizações de usuário autenticado.
-    val currentUserFlow = callbackFlow<FirebaseUser?> {
-        val listener = FirebaseAuth.AuthStateListener { firebaseAuth ->
-            trySend(firebaseAuth.currentUser)
+    init {
+        auth.addAuthStateListener { firebaseAuth ->
+            _currentUser.value = firebaseAuth.currentUser
         }
-        auth.addAuthStateListener(listener)
-        awaitClose { auth.removeAuthStateListener(listener) }
     }
 
-    // Função para fazer o login com o token de autenticação do Google.
-    suspend fun signInWithGoogleIdToken(idToken: String): FirebaseUser? {
-        val credential = GoogleAuthProvider.getCredential(idToken, null)
+    suspend fun signInWithGoogleIdToken(idToken: String): Result<FirebaseUser?> {
         return try {
-            val result = auth.signInWithCredential(credential).await()
-            result.user  // Retorna o usuário autenticado.
+            val credential = GoogleAuthProvider.getCredential(idToken, null)
+            val authResult = auth.signInWithCredential(credential).await()
+            Result.success(authResult.user)
         } catch (e: Exception) {
-            Log.e("AuthRepository", "Erro ao autenticar com Google: ${e.localizedMessage}")
-            null
+            Log.e("AuthRepository", "Erro no login com Google: ${e.message}", e)
+            Result.failure(e)
         }
     }
 
-    // Função para deslogar e limpar o estado do Credential Manager.
-    suspend fun signOut() {
-        auth.signOut()
-        val credentialManager = CredentialManager.create(context)
-        try {
-            val clearRequest = ClearCredentialStateRequest()
-            credentialManager.clearCredentialState(clearRequest)
+    suspend fun signOut(): Result<Unit> {
+        return try {
+            auth.signOut()
+            val credentialManager = CredentialManager.create(context)
+            credentialManager.clearCredentialState(ClearCredentialStateRequest())
+            Result.success(Unit)
         } catch (e: ClearCredentialException) {
-            Log.e("AuthRepository", "Erro ao limpar credenciais: ${e.localizedMessage}")
+            Log.e("AuthRepository", "Erro ao limpar credenciais: ${e.message}", e)
+            Result.failure(e)
         }
     }
 }
